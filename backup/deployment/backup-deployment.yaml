@@ -1,0 +1,33 @@
+---
+- hosts: backup
+  become: true
+  become_user: root
+  vars:
+      backup_user: buser 
+  tasks:
+    - name: Create /usr/local/bin
+      file: path=/home/hadoop/backup_scripts/ state=directory
+    - name: Copy scripts
+      copy:
+        src: ../bin/{{ item }}
+        dest: /usr/local/bin/{{ item }}
+        mode: 0755
+      with_items:
+         - backup_hbase_to_s3.sh
+         - backup_list_hbase_tables_to_s3.sh
+    - name: Install s3cmd
+      package:
+        name: s3cmd
+        state: latest
+    - name: Create backup user
+      user:
+        name: {{ backup_user }}  
+        shell: /bin/bash
+    - name: Install cron job for backup emails
+      cron:
+        name: "Backup all hbase tables"
+        minute: 0
+        hour: 2
+        user: {{ backup_user }}
+        job: /usr/local/bin/backup_list_hbase_tables_to_s3.sh
+

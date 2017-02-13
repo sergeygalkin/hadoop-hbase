@@ -1,9 +1,9 @@
 #!/bin/bash - 
 #===============================================================================
 #
-#          FILE: backup_to_s3.sh
+#          FILE: backup_hbase_to_s3.sh
 # 
-#         USAGE: ./backup_to_s3.sh 
+#         USAGE: ./backup_hbase_to_s3.sh S3_BUCKET HBASE_TABLE
 # 
 #   DESCRIPTION: 
 # 
@@ -38,7 +38,8 @@ echo "$(date '+%F %H:%M') Create snapshot ${HSNAPSHOT}" | tee -a ${LOG_FILE}
 echo "snapshot '${HTABLE}', '${HSNAPSHOT}'" | hbase shell &>> ${LOG_FILE}
 echo "$(date '+%F %H:%M') Start export snapshot to S3" | tee -a ${LOG_FILE}
 S3_URL="s3n://${S3_ID}:${S3_PASS}@${S3_BUCKET}/${HTABLE}/${HSNAPSHOT}/"
-hbase org.apache.hadoop.hbase.snapshot.ExportSnapshot -Dfs.s3n.multipart.uploads.enabled=true -Dfs.s3n.multipart.copy.block.size=2684354560 -Dmapreduce.task.timeout=6000000 -snapshot "${HSNAPSHOT}" -bandwidth 4 -mappers 4 -copy-to ${S3_URL} &>> ${LOG_FILE} ||  HSTATUS=false
+hbase org.apache.hadoop.hbase.snapshot.ExportSnapshot -Dfs.s3n.multipart.uploads.enabled=true -Dfs.s3n.multipart.copy.block.size=2684354560 \
+ -Dmapreduce.task.timeout=6000000 -snapshot "${HSNAPSHOT}" -bandwidth 4 -mappers 4 -copy-to ${S3_URL} &>> ${LOG_FILE} ||  HSTATUS=false
 echo "$(date '+%F %H:%M') Snapshot exporting finished" | tee -a ${LOG_FILE}
 echo "$(date '+%F %H:%M') Delete snapshot ${HSNAPSHOT}" | tee -a  ${LOG_FILE}
 echo "delete_snapshot '${HSNAPSHOT}'" | hbase shell  &>> ${LOG_FILE}
