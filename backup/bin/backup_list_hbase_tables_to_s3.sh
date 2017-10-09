@@ -19,7 +19,7 @@
 #===============================================================================
 
 set -euo nounset                              # Treat unset variables as an error
-#!/bin/bash -e
+
 export LANG=C
 cd $(dirname $(realpath $0))
 
